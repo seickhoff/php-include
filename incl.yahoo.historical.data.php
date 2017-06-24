@@ -23,9 +23,6 @@
 */
 function yahoo($param) {
 	
-	$cookie = get_cookie();
-	$crumb = get_crumb($cookie);
-	
 	// defaults
 	$symbol = (isset($param['symbol'])) ? $param['symbol'] : 'AAPL';
 
@@ -38,13 +35,38 @@ function yahoo($param) {
 	$start = strtotime("{$start} midnight -{$offset} day" );
 	$end = strtotime("{$end} midnight +1 day" );
 	
-	// get CSV data
-	$result = curl(array(
-		"url" => "https://query1.finance.yahoo.com/v7/finance/download/{$param['symbol']}?period1={$start}&period2={$end}&interval=1d&events=history&crumb={$crumb}",
-		"cookie" => $cookie,
-		"header" => false,
-		"body" => true
-	));	
+	// retry logic
+	$tries = 25;
+	$have_data = false;
+	
+	for ($x = 1; $x <= $tries; $x++) {
+		
+		$cookie = get_cookie();
+		$crumb = get_crumb($cookie);
+	
+		// get CSV data
+		$result = curl(array(
+			"url" => "https://query1.finance.yahoo.com/v7/finance/download/" .
+				"{$symbol}?period1={$start}&period2={$end}&interval=1d&events=history&crumb={$crumb}",
+			"cookie" => $cookie,
+			"header" => false,
+			"body" => true
+		));	
+		
+		// look for "Invalid cookie" in JSON response
+		$j = json_decode($result);
+		if (! (isset($j->finance->error->description) && $j->finance->error->description == "Invalid cookie")) {
+			$have_data = true;
+			break;
+		}
+		else {
+			//echo "Try {$x}. Issue with cookie" . PHP_EOL;
+		}
+	}
+	
+	if (! $have_data) {
+		return array();
+	}
 	
 	// clean end of data
 	$data = rtrim ($result, "\n\r");
@@ -139,13 +161,20 @@ function get_cookie() {
 		"body" => false
 	));	
 
+	//print_r($result);
+	
 	$cookies = array();
 	$cookieParts = array();
 	preg_match_all('/Set-Cookie:(?<cookie>\s{0,}.*)$/im', $result, $cookies);
 	foreach ($cookies[0] as $cookie) {
 		preg_match_all('/Set-Cookie:\s{0,}(B=.*?);/im', $cookie, $cookieParts);
-	} 
-	return "Cookie: " . $cookieParts[1][0];
+	}
+	
+	if (isset($cookieParts[1][0])) {
+		return "Cookie: " . $cookieParts[1][0];
+	}
+	
+	return null;
 }
 
 // get crumb
