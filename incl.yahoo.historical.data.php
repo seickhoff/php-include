@@ -30,7 +30,7 @@ function yahoo($param) {
 	$start = (isset($param['start'])) ? $param['start'] : date('Y-m-d', strtotime("{$end} -14 day"));
 
 	$offset = (isset($param['offset'])) ? $param['offset'] : 0;
-	$arr_col = (isset($param['columns'])) ? $param['columns'] : array('s', 'd', 'v', 'h', 'l', 'o', 'c');
+	$arr_col = (isset($param['columns'])) ? $param['columns'] : array('s', 'd', 'v', 'h', 'l', 'o', 'a');
 	
 	$start = strtotime("{$start} midnight -{$offset} day" );
 	$end = strtotime("{$end} midnight +1 day" );
