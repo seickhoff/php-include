@@ -73,6 +73,9 @@ function Bollinger ($array_ref, $days, $multiplier, $index, $decimal_places) {
 	global $middle;
 	global $upper;
 	global $lower;
+	$middle = [];
+	$upper = [];
+	$lower = [];
 	$sma = "";
 	$upp = "";
 	$low = "";
@@ -117,7 +120,9 @@ function PriceChannels ($array_ref, $days, $index_high, $index_low, $decimal_pla
 	$h_width = array();
 	$l_width = array();
 	global $pc_high;
+	$pc_high = [];
 	global $pc_low;
+	$pc_low = [];
 	$low = "";
 	$high = "";
 	$format = '%1.' . $decimal_places . 'f';
@@ -163,6 +168,9 @@ function MACD ($array_ref, $days_fast, $days_slow, $days_smooth, $index_close, $
 	global $macd_ema;
 	global $divergence;
 	
+	$macd = [];
+	$macd_ema = [];
+	$divergence = [];
 
 	$macd_precise = array();
 	$padding = 0;
@@ -246,6 +254,7 @@ function RSI ($array_ref, $days, $index, $decimal_places) {
 	$previous_avg_loss = array();
 	$previous_avg_gain = array();
 	global $rsi;
+	$rsi = [];
 	$RSI = null;
 
 	// iterate over historical data rows
@@ -302,6 +311,7 @@ function RSI ($array_ref, $days, $index, $decimal_places) {
 				$previous_avg_loss[] = $avg_loss;
 			}
 		}
+
 		$rsi[] = sprintf($format, $RSI);
 	}
 }
@@ -348,6 +358,10 @@ function ADX ($array_ref, $days, $index_close, $index_high, $index_low, $decimal
 	global $DI_plus;
 	global $DI_minus;
 	global $adx;
+	
+	$DI_plus = [];
+	$DI_minus = [];
+	$adx = [];
 	
 	$tr14 = null;
 	$DM14_plus = null;
@@ -1732,9 +1746,10 @@ function Candles ($array_ref, $index_open, $index_close, $index_high, $index_low
 			$hist_body_type[1] != 'Doji' && 
 			$body_day == 'Long' && 			
 			$hist_body_day[1] == 'Long' && 
-			($hist_High[3] - $hist_Low[3]) / 10 < ($hist_body_bottom[3] - $hist_body_top[2]) && // day 1 & 2 gap > than 10% of day 1 high-low range
-			($hist_High[3] - $hist_Low[3]) / 10 < ($hist_body_bottom[2] - $hist_body_top[1]) && // day 2 & 3 gap > than 10% of day 1 high-low range
-			($hist_High[3] - $hist_Low[3]) / 10 < ($hist_body_bottom[1] - $Open) && // day 3 & 4 gap > than 10% of day 1 high-low range
+			// had to add '@' to supress warnings
+			@($hist_High[3] - $hist_Low[3]) / 10 < @($hist_body_bottom[3] - $hist_body_top[2]) && // day 1 & 2 gap > than 10% of day 1 high-low range
+			@($hist_High[3] - $hist_Low[3]) / 10 < @($hist_body_bottom[2] - $hist_body_top[1]) && // day 2 & 3 gap > than 10% of day 1 high-low range
+			@($hist_High[3] - $hist_Low[3]) / 10 < @($hist_body_bottom[1] - $Open) && // day 3 & 4 gap > than 10% of day 1 high-low range
 			$hist_trend[1] < 0) {
 			
 			$pattern = 'Three Gap Downs R+';
@@ -1749,9 +1764,9 @@ function Candles ($array_ref, $index_open, $index_close, $index_high, $index_low
 			$hist_body_type[1] != 'Doji' && 
 			$body_day == 'Long' && 			
 			$hist_body_day[1] == 'Long' && 
-			($hist_High[3] - $hist_Low[3]) / 10 < ($hist_body_bottom[2] - $hist_body_top[3]) && // day 1 & 2 gap > than 10% of day 1 high-low range
-			($hist_High[3] - $hist_Low[3]) / 10 < ($hist_body_bottom[1] - $hist_body_top[2]) && // day 2 & 3 gap > than 10% of day 1 high-low range
-			($hist_High[3] - $hist_Low[3]) / 10 < ($Open - $hist_body_bottom[1]) && // day 3 & 4 gap > than 10% of day 1 high-low range
+			@($hist_High[3] - $hist_Low[3]) / 10 < @($hist_body_bottom[2] - $hist_body_top[3]) && // day 1 & 2 gap > than 10% of day 1 high-low range
+			@($hist_High[3] - $hist_Low[3]) / 10 < @($hist_body_bottom[1] - $hist_body_top[2]) && // day 2 & 3 gap > than 10% of day 1 high-low range
+			@($hist_High[3] - $hist_Low[3]) / 10 < @($Open - $hist_body_bottom[1]) && // day 3 & 4 gap > than 10% of day 1 high-low range
 			$hist_trend[1] > 0) {
 			
 			$pattern = 'Three Gap Ups R-';
@@ -2172,8 +2187,8 @@ function Candles ($array_ref, $index_open, $index_close, $index_high, $index_low
 	}
 	// trend = current close compared to 5-day sma; in %
 	
-	return array(array_slice($CandlePatterns, 10), array_slice($CandlePatLengths, 10)); 
-	//return array(array_slice($CandleColor, 10), array_slice($CandleTrend, 10), array_slice($CandlePatterns, 10));
+	//return array(array_slice($CandlePatterns, 10), array_slice($CandlePatLengths, 10)); 
+	return array(array_slice($CandleColor, 10), array_slice($CandleTrend, 10), array_slice($CandlePatterns, 10), array_slice($CandlePatLengths, 10));
 }
 
 
